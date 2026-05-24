@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CVPro — teknyrastore.com</title>
+
+<!-- PWA META -->
+<meta name="theme-color" content="#0F2C59">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CVPro">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Free Professional CV Builder by teknyrastore.com">
+
+<!-- PWA ICONS (inline SVG as data URI) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%230F2C59' rx='32'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle' fill='white'%3E📄%3C/text%3E%3C/svg%3E">
+
+<!-- PWA MANIFEST inline -->
+<script>
+const manifestData = {
+  name: "CVPro - CV Builder",
+  short_name: "CVPro",
+  description: "Free Professional CV Builder",
+  start_url: "./",
+  display: "standalone",
+  background_color: "#0F2C59",
+  theme_color: "#0F2C59",
+  orientation: "portrait-primary",
+  icons: [
+    { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%230F2C59' rx='32'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle' fill='white'%3E📄%3C/text%3E%3C/svg%3E", sizes: "192x192", type: "image/svg+xml" },
+    { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%230F2C59' rx='80'/%3E%3Ctext x='256' y='360' font-size='280' text-anchor='middle' fill='white'%3E📄%3C/text%3E%3C/svg%3E", sizes: "512x512", type: "image/svg+xml" }
+  ]
+};
+const blob = new Blob([JSON.stringify(manifestData)], {type:'application/json'});
+const manifestURL = URL.createObjectURL(blob);
+document.write(`<link rel="manifest" href="${manifestURL}">`);
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== THEME COLORS ===== */
+:root {
+  --navy: #0F2C59;
+  --navy-dark: #0a1f3d;
+  --navy-light: #1a3e78;
+  --white: #FFFFFF;
+  --bg: #F8F9FA;
+  --text: #212529;
+  --muted: #6c757d;
+  --border: #dee2e6;
+  --accent: #c8973a;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Open Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+/* NAV */
+.nav{background:var(--navy);padding:11px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:999;gap:8px;flex-wrap:wrap;box-shadow:0 2px 12px rgba(15,44,89,.3);}
+.nav-logo{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:900;color:var(--white);}
+.nav-logo span{color:#f0c040;}
+.nav-tabs{display:flex;gap:4px;flex-wrap:wrap;}
+.ntab{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:6px 12px;color:rgba(255,255,255,.7);font-size:11px;font-weight:700;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .2s;}
+.ntab.on,.ntab:hover{background:var(--white);border-color:var(--white);color:var(--navy);}
+.btn-pdf{background:#f0c040;border:none;border-radius:8px;padding:8px 16px;color:var(--navy);font-size:12px;font-weight:800;font-family:'Montserrat',sans-serif;cursor:pointer;box-shadow:0 2px 8px rgba(240,192,64,.3);}
+.btn-pdf:hover{background:#ffd166;}
+
+/* INSTALL BANNER */
+.install-banner{background:var(--navy-dark);color:var(--white);padding:10px 16px;display:none;justify-content:space-between;align-items:center;font-size:13px;}
+.install-banner.show{display:flex;}
+.btn-install{background:#f0c040;color:var(--navy);border:none;border-radius:7px;padding:6px 14px;font-weight:700;font-size:12px;font-family:'Montserrat',sans-serif;cursor:pointer;}
+.btn-dismiss{background:transparent;color:rgba(255,255,255,.5);border:none;cursor:pointer;font-size:18px;padding:0 6px;}
+
+/* LAYOUT */
+.wrap{display:grid;grid-template-columns:355px 1fr;flex:1;}
+
+/* FORM PANEL */
+.fp{background:var(--white);border-right:1px solid var(--border);overflow-y:auto;height:calc(100vh - 55px);position:sticky;top:55px;box-shadow:2px 0 8px rgba(0,0,0,.04);}
+.fp::-webkit-scrollbar{width:4px;}
+.fp::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.fsec{padding:16px 18px;border-bottom:1px solid var(--border);}
+.fsec.hide{display:none;}
+.ftitle{font-size:10px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;}
+.fg{margin-bottom:9px;}
+label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
+input[type=text],input[type=email],input[type=tel],textarea,select{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-family:'Open Sans',sans-serif;font-size:13px;outline:none;transition:border .2s,box-shadow .2s;}
+input:focus,textarea:focus,select:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(15,44,89,.1);}
+textarea{min-height:60px;resize:vertical;}
+select option{background:var(--white);color:var(--text);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.badd{width:100%;background:transparent;border:1.5px dashed var(--navy);border-radius:8px;padding:8px;color:var(--navy);font-size:11px;font-weight:700;font-family:'Montserrat',sans-serif;cursor:pointer;margin-top:6px;transition:all .2s;}
+.badd:hover{background:rgba(15,44,89,.06);}
+.di{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:11px;margin-bottom:7px;position:relative;}
+.bdel{position:absolute;top:8px;right:8px;background:#fff0f0;border:none;border-radius:5px;padding:2px 7px;color:#dc3545;font-size:11px;cursor:pointer;}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.tc{border:2px solid var(--border);border-radius:9px;padding:10px 6px;text-align:center;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);transition:all .2s;}
+.tc.on,.tc:hover{border-color:var(--navy);color:var(--navy);background:rgba(15,44,89,.05);}
+.tic{font-size:20px;margin-bottom:4px;}
+.cpal{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;}
+.cp{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .2s;}
+.cp.on,.cp:hover{border-color:var(--navy);transform:scale(1.15);}
+
+/* PREVIEW */
+.parea{background:#e8ecf0;padding:24px 16px;display:flex;justify-content:center;overflow:auto;}
+.cv-wrap{transform-origin:top center;}
+
+/* ===== CV PAPER ===== */
+.cv{width:794px;height:1123px;background:var(--white);color:var(--text);font-family:'Open Sans',sans-serif;overflow:hidden;display:flex;position:relative;}
+
+/* ===== T1: NAVY BOLD ===== */
+.cv.t1{flex-direction:row;}
+.t1 .col-l{width:268px;min-width:268px;background:var(--c1,#0F2C59);display:flex;flex-direction:column;height:1123px;}
+.t1 .col-l-head{padding:32px 22px 24px;background:rgba(0,0,0,.18);}
+.t1 .col-l-body{padding:22px 22px;flex:1;display:flex;flex-direction:column;justify-content:space-between;}
+.t1 .col-r{flex:1;display:flex;flex-direction:column;height:1123px;padding:32px 28px;}
+.t1 .col-r-inner{flex:1;display:flex;flex-direction:column;justify-content:space-between;}
+.t1 .l-icon{width:90px;height:90px;background:rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;border:3px solid rgba(255,255,255,.2);margin-bottom:18px;}
+.t1 .l-name{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:900;color:#fff;text-transform:uppercase;line-height:1.15;}
+.t1 .l-role{font-size:11px;font-weight:600;color:#f0c040;letter-spacing:2px;text-transform:uppercase;margin-top:7px;}
+.t1 .l-sec{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;color:#f0c040;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid rgba(255,255,255,.15);}
+.t1 .l-block{margin-bottom:0;}
+.t1 .l-contact{font-size:12.5px;color:rgba(255,255,255,.88);margin-bottom:10px;display:flex;align-items:flex-start;gap:9px;line-height:1.5;}
+.t1 .l-sk{margin-bottom:12px;}
+.t1 .l-sk-name{font-size:12.5px;color:rgba(255,255,255,.88);font-weight:600;margin-bottom:5px;display:flex;justify-content:space-between;}
+.t1 .l-sk-bg{height:7px;background:rgba(255,255,255,.15);border-radius:4px;}
+.t1 .l-sk-fill{height:100%;border-radius:4px;background:#f0c040;}
+.t1 .l-lang{font-size:12.5px;color:rgba(255,255,255,.88);display:flex;justify-content:space-between;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,.1);}
+.t1 .l-lang:last-child{border-bottom:none;}
+.t1 .l-lang span:last-child{opacity:.65;font-size:11.5px;}
+.t1 .r-sec{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:900;color:var(--c1,#0F2C59);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.t1 .r-sec::after{content:'';flex:1;height:2.5px;background:var(--c1,#0F2C59);}
+.t1 .r-sum{font-size:13px;line-height:1.85;color:#555;}
+.t1 .r-exp{margin-bottom:18px;}
+.t1 .r-exp-t{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:var(--text);}
+.t1 .r-exp-c{font-size:13px;font-weight:600;color:var(--c2,#c8973a);margin-top:2px;}
+.t1 .r-exp-d{font-size:11.5px;color:#aaa;margin-top:2px;}
+.t1 .r-exp-desc{font-size:12.5px;color:#555;line-height:1.75;margin-top:5px;}
+.t1 .r-edu{margin-bottom:16px;}
+.t1 .r-edu-d{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;}
+.t1 .r-edu-s{font-size:13px;color:var(--c1,#0F2C59);font-weight:600;margin-top:2px;}
+.t1 .r-edu-y{font-size:12px;color:#aaa;margin-top:2px;}
+
+/* ===== T2: BLUE BOLD ===== */
+.cv.t2{flex-direction:row;}
+.t2 .col-l{width:252px;min-width:252px;background:var(--c1,#0F2C59);display:flex;flex-direction:column;height:1123px;position:relative;overflow:hidden;}
+.t2 .col-l::before{content:'';position:absolute;top:-60px;right:-60px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.05);}
+.t2 .col-l::after{content:'';position:absolute;bottom:-60px;left:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.04);}
+.t2 .l2-head{background:rgba(0,0,0,.2);padding:28px 18px 22px;text-align:center;position:relative;z-index:1;}
+.t2 .l2-icon{width:85px;height:85px;background:rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 14px;border:2px solid rgba(255,255,255,.25);}
+.t2 .l2-name{font-family:'Montserrat',sans-serif;font-size:17px;font-weight:900;color:#fff;text-transform:uppercase;line-height:1.15;}
+.t2 .l2-role{font-size:10px;color:rgba(255,255,255,.65);letter-spacing:2px;text-transform:uppercase;margin-top:5px;}
+.t2 .l2-body{padding:18px 18px;flex:1;display:flex;flex-direction:column;justify-content:space-between;position:relative;z-index:1;}
+.t2 .l2-block{margin-bottom:0;}
+.t2 .l2-sec{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:1.5px;background:rgba(255,255,255,.12);padding:8px 12px;border-radius:7px;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.t2 .l2-ci{font-size:13px;color:rgba(255,255,255,.88);margin-bottom:9px;display:flex;align-items:flex-start;gap:8px;line-height:1.5;}
+.t2 .l2-sk{font-size:13px;color:rgba(255,255,255,.88);padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:8px;}
+.t2 .l2-sk::before{content:'●';color:#f0c040;font-size:9px;min-width:12px;}
+.t2 .l2-lang{font-size:12.5px;color:rgba(255,255,255,.88);display:flex;justify-content:space-between;margin-bottom:9px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.07);}
+.t2 .l2-lang:last-child{border-bottom:none;}
+.t2 .col-r2{flex:1;background:#f5f7ff;display:flex;flex-direction:column;height:1123px;padding:28px 24px;}
+.t2 .col-r2-inner{flex:1;display:flex;flex-direction:column;justify-content:space-between;}
+.t2 .r2-sec{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:900;color:#fff;background:var(--c1,#0F2C59);padding:9px 14px;border-radius:7px;margin-bottom:13px;}
+.t2 .r2-sum{font-size:13px;line-height:1.85;color:#444;background:#fff;padding:14px;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+.t2 .r2-exp{margin-bottom:14px;background:#fff;border-left:4px solid var(--c1,#0F2C59);border-radius:0 8px 8px 0;padding:12px 14px;box-shadow:0 1px 5px rgba(0,0,0,.05);}
+.t2 .r2-exp-t{font-family:'Montserrat',sans-serif;font-size:13.5px;font-weight:800;color:var(--text);}
+.t2 .r2-exp-c{font-size:12.5px;color:var(--c1,#0F2C59);font-weight:600;margin-top:2px;}
+.t2 .r2-exp-d{font-size:11.5px;color:#aaa;margin-top:2px;}
+.t2 .r2-exp-desc{font-size:12.5px;color:#555;line-height:1.75;margin-top:5px;}
+.t2 .r2-edu{margin-bottom:13px;background:#fff;padding:12px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.05);}
+.t2 .r2-edu-d{font-family:'Montserrat',sans-serif;font-size:13.5px;font-weight:700;}
+.t2 .r2-edu-s{font-size:12.5px;color:var(--c1,#0F2C59);font-weight:600;margin-top:2px;}
+.t2 .r2-edu-y{font-size:12px;color:#aaa;margin-top:2px;}
+
+/* ===== T3: BROWN GOLD ===== */
+.cv.t3{flex-direction:row;}
+.t3 .col-l{width:262px;min-width:262px;background:var(--c1,#3e1f00);display:flex;flex-direction:column;height:1123px;}
+.t3 .l3-top{background:var(--c2,#c17f00);padding:26px 18px 22px;position:relative;overflow:hidden;}
+.t3 .l3-top::after{content:'';position:absolute;bottom:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(0,0,0,.1);}
+.t3 .l3-icon{width:90px;height:90px;background:rgba(255,255,255,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:42px;border:2px solid rgba(255,255,255,.22);margin-bottom:14px;}
+.t3 .l3-name{font-family:'Montserrat',sans-serif;font-size:19px;font-weight:900;color:#fff;text-transform:uppercase;line-height:1.15;}
+.t3 .l3-role{font-size:10.5px;color:rgba(255,255,255,.72);letter-spacing:2px;text-transform:uppercase;margin-top:6px;}
+.t3 .l3-body{padding:20px 18px;flex:1;display:flex;flex-direction:column;justify-content:space-between;}
+.t3 .l3-block{margin-bottom:0;}
+.t3 .l3-sec{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:var(--c2,#c17f00);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid rgba(255,255,255,.12);}
+.t3 .l3-ci{font-size:13px;color:rgba(255,255,255,.88);margin-bottom:10px;display:flex;align-items:flex-start;gap:9px;line-height:1.5;}
+.t3 .l3-ci-icon{width:28px;height:28px;min-width:28px;background:var(--c2,#c17f00);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.t3 .l3-sk{margin-bottom:12px;}
+.t3 .l3-sk-n{font-size:12.5px;color:rgba(255,255,255,.88);font-weight:600;margin-bottom:5px;display:flex;justify-content:space-between;}
+.t3 .l3-sk-bg{height:6px;background:rgba(255,255,255,.15);border-radius:3px;}
+.t3 .l3-sk-fill{height:100%;border-radius:3px;background:var(--c2,#c17f00);}
+.t3 .l3-lang{font-size:13px;color:rgba(255,255,255,.88);display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,.08);}
+.t3 .l3-lang::before{content:'●';color:var(--c2,#c17f00);font-size:9px;}
+.t3 .l3-lang:last-child{border-bottom:none;}
+.t3 .col-r3{flex:1;display:flex;flex-direction:column;height:1123px;}
+.t3 .r3-head{background:var(--c1,#3e1f00);padding:22px 24px;}
+.t3 .r3-body{flex:1;padding:22px 24px;display:flex;flex-direction:column;justify-content:space-between;}
+.t3 .r3-block{margin-bottom:0;}
+.t3 .r3-sec{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:900;color:var(--c1,#3e1f00);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid var(--c1,#3e1f00);}
+.t3 .r3-sum{font-size:13px;line-height:1.85;color:#444;}
+.t3 .r3-exp{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #f0f0f0;}
+.t3 .r3-exp:last-child{border-bottom:none;}
+.t3 .r3-exp-t{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:var(--text);}
+.t3 .r3-exp-c{font-size:13px;color:var(--c2,#c17f00);font-weight:600;margin-top:2px;}
+.t3 .r3-exp-d{font-size:12px;color:#aaa;margin-top:2px;}
+.t3 .r3-exp-desc{font-size:12.5px;color:#555;line-height:1.75;margin-top:5px;}
+.t3 .r3-edu{margin-bottom:14px;}
+.t3 .r3-edu-d{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;}
+.t3 .r3-edu-s{font-size:13px;color:var(--c2,#c17f00);font-weight:600;margin-top:2px;}
+.t3 .r3-edu-y{font-size:12px;color:#aaa;margin-top:2px;}
+
+/* ===== T4: DARK PRO ===== */
+.cv.t4{flex-direction:column;}
+.t4 .t4-head{background:var(--c1,#0F2C59);padding:26px 36px;display:flex;justify-content:space-between;align-items:center;position:relative;overflow:hidden;}
+.t4 .t4-head::before{content:'';position:absolute;top:-70px;right:-70px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.05);}
+.t4 .t4-icon{width:100px;height:100px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:46px;border:2px solid rgba(255,255,255,.18);z-index:1;margin-left:20px;}
+.t4 .t4-hl{z-index:1;}
+.t4 .t4-bar{background:var(--c2,#c8973a);padding:12px 36px;display:flex;gap:28px;flex-wrap:wrap;}
+.t4 .t4-ci{font-size:12.5px;color:#fff;display:flex;align-items:center;gap:8px;font-weight:600;}
+.t4 .t4-body{flex:1;display:grid;grid-template-columns:1fr 1fr;}
+.t4 .t4-bl{padding:24px 28px;border-right:1px solid #eee;display:flex;flex-direction:column;justify-content:space-between;}
+.t4 .t4-br{padding:24px 28px;background:#fafafa;display:flex;flex-direction:column;justify-content:space-between;}
+.t4 .t4-blk{margin-bottom:0;}
+.t4 .t4-sec{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:900;color:var(--c1,#0F2C59);text-transform:uppercase;letter-spacing:1px;border-left:5px solid var(--c2,#c8973a);padding-left:11px;margin-bottom:13px;}
+.t4 .t4-sum{font-size:13px;line-height:1.85;color:#444;}
+.t4 .t4-exp{margin-bottom:16px;padding-bottom:14px;border-bottom:1px dashed #e8e8e8;}
+.t4 .t4-exp:last-child{border-bottom:none;}
+.t4 .t4-exp-t{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:var(--text);}
+.t4 .t4-exp-c{font-size:13px;color:var(--c2,#c8973a);font-weight:600;margin-top:2px;}
+.t4 .t4-exp-d{font-size:12px;color:#aaa;margin-top:2px;}
+.t4 .t4-exp-desc{font-size:12.5px;color:#555;line-height:1.75;margin-top:5px;}
+.t4 .t4-sk{margin-bottom:13px;}
+.t4 .t4-sk-n{font-size:13px;font-weight:600;margin-bottom:5px;display:flex;justify-content:space-between;}
+.t4 .t4-sk-bg{height:7px;background:#e8e8f0;border-radius:4px;}
+.t4 .t4-sk-fill{height:100%;border-radius:4px;background:var(--c1,#0F2C59);}
+.t4 .t4-edu{margin-bottom:15px;border-left:4px solid var(--c1,#0F2C59);padding:10px 14px;background:#fff;border-radius:0 8px 8px 0;box-shadow:0 1px 5px rgba(0,0,0,.05);}
+.t4 .t4-edu-d{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;}
+.t4 .t4-edu-s{font-size:13px;color:var(--c1,#0F2C59);font-weight:600;margin-top:2px;}
+.t4 .t4-edu-y{font-size:12px;color:#aaa;margin-top:2px;}
+.t4 .t4-lang{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:9px 0;border-bottom:1px solid #eee;}
+.t4 .t4-lang:last-child{border-bottom:none;}
+.t4 .t4-lang span:last-child{color:#aaa;font-size:12px;}
+
+@media print{.nav,.fp,.install-banner{display:none!important;}.wrap{grid-template-columns:1fr!important;}.parea{padding:0!important;background:#fff!important;}}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;}.fp{height:auto;position:static;}.ntab{display:none;}.parea{padding:10px 4px;}}
+</style>
+</head>
+<body>
+
+<!-- INSTALL BANNER -->
+<div class="install-banner" id="installBanner">
+  <span>📱 CVPro ko apne phone pe install karo!</span>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button class="btn-install" id="btnInstall">Install App</button>
+    <button class="btn-dismiss" id="btnDismiss">✕</button>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-logo">CV<span>Pro</span></div>
+  <div class="nav-tabs">
+    <button class="ntab on" onclick="sp('info',this)">Info</button>
+    <button class="ntab" onclick="sp('exp',this)">Experience</button>
+    <button class="ntab" onclick="sp('edu',this)">Education</button>
+    <button class="ntab" onclick="sp('sk',this)">Skills</button>
+    <button class="ntab" onclick="sp('design',this)">Design</button>
+  </div>
+  <button class="btn-pdf" onclick="window.print()">🖨️ Save PDF</button>
+</div>
+
+<div class="wrap">
+<div class="fp">
+  <div class="fsec" id="p-info">
+    <div class="ftitle">Personal Info</div>
+    <div class="fg"><label>Full Name</label><input type="text" id="fn" value="Hafiz Shaban" oninput="render()"></div>
+    <div class="fg"><label>Job Title</label><input type="text" id="ft" value="Web Developer & Freelancer" oninput="render()"></div>
+    <div class="fg"><label>Icon (emoji)</label><input type="text" id="fic" value="💻" oninput="render()"></div>
+    <div class="fg"><label>Summary</label><textarea id="fs" oninput="render()">Experienced web developer specializing in WordPress, WooCommerce and modern frontend development. Passionate about building clean, fast and professional digital products for Pakistani and international clients. Committed to delivering high quality work with excellent communication and on-time delivery.</textarea></div>
+    <div class="frow">
+      <div class="fg"><label>Phone</label><input type="text" id="fp2" value="+92 300 7248790" oninput="render()"></div>
+      <div class="fg"><label>Email</label><input type="text" id="fe" value="hafiz@teknyrastore.com" oninput="render()"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>City</label><input type="text" id="fc" value="Lahore, Pakistan" oninput="render()"></div>
+      <div class="fg"><label>Website</label><input type="text" id="fw" value="teknyrastore.com" oninput="render()"></div>
+    </div>
+  </div>
+  <div class="fsec hide" id="p-exp">
+    <div class="ftitle">Experience</div>
+    <div id="exp-c"></div>
+    <button class="badd" onclick="addE()">+ Add Experience</button>
+  </div>
+  <div class="fsec hide" id="p-edu">
+    <div class="ftitle">Education</div>
+    <div id="edu-c"></div>
+    <button class="badd" onclick="addEd()">+ Add Education</button>
+  </div>
+  <div class="fsec hide" id="p-sk">
+    <div class="ftitle">Skills</div>
+    <div id="sk-c"></div>
+    <button class="badd" onclick="addSk()">+ Add Skill</button>
+    <div class="ftitle" style="margin-top:12px">Languages</div>
+    <div id="lg-c"></div>
+    <button class="badd" onclick="addLg()">+ Add Language</button>
+  </div>
+  <div class="fsec hide" id="p-design">
+    <div class="ftitle">Template</div>
+    <div class="tgrid">
+      <div class="tc on" onclick="setT(1,this)"><div class="tic">📋</div>Navy Bold</div>
+      <div class="tc" onclick="setT(2,this)"><div class="tic">🔵</div>Blue Bold</div>
+      <div class="tc" onclick="setT(3,this)"><div class="tic">🟤</div>Brown Gold</div>
+      <div class="tc" onclick="setT(4,this)"><div class="tic">⚡</div>Dark Pro</div>
+    </div>
+    <div class="ftitle" style="margin-top:14px">CV Color</div>
+    <div class="cpal">
+      <div class="cp on" style="background:#0F2C59" onclick="setC('#0F2C59','#c8973a',this)"></div>
+      <div class="cp" style="background:#0d3b7a" onclick="setC('#0d3b7a','#42a5f5',this)"></div>
+      <div class="cp" style="background:#3e1f00" onclick="setC('#3e1f00','#c17f00',this)"></div>
+      <div class="cp" style="background:#1a5a3a" onclick="setC('#1a5a3a','#27ae60',this)"></div>
+      <div class="cp" style="background:#6b1a1a" onclick="setC('#6b1a1a','#e74c3c',this)"></div>
+      <div class="cp" style="background:#2c1a5e" onclick="setC('#2c1a5e','#9b59b6',this)"></div>
+      <div class="cp" style="background:#1a1a1a" onclick="setC('#1a1a1a','#e63946',this)"></div>
+      <div class="cp" style="background:#004d40" onclick="setC('#004d40','#00bfa5',this)"></div>
+    </div>
+  </div>
+</div>
+
+<div class="parea" id="parea">
+  <div class="cv-wrap" id="cvWrap">
+    <div class="cv t1" id="cvEl"></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ===== PWA SERVICE WORKER =====
+if('serviceWorker' in navigator){
+  const swCode = `
+    const CACHE = 'cvpro-v1';
+    const ASSETS = [self.location.href];
+    self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))));
+    self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
+  `;
+  const blob = new Blob([swCode], {type:'application/javascript'});
+  const swURL = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swURL).catch(()=>{});
+}
+
+// ===== PWA INSTALL PROMPT =====
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+
+document.getElementById('btnInstall').addEventListener('click', () => {
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('installBanner').classList.remove('show');
+    });
+  }
+});
+
+document.getElementById('btnDismiss').addEventListener('click', () => {
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+// ===== CV BUILDER LOGIC =====
+let S={tpl:1,c1:'#0F2C59',c2:'#c8973a',
+  exp:[
+    {id:1,title:'Web Developer',co:'Freelance / Fiverr',from:'2022',to:'Present',desc:'Built WordPress sites, WooCommerce stores, and landing pages. Delivered 50+ projects for local and international clients with 5-star ratings on Fiverr.'},
+    {id:2,title:'Frontend Developer',co:'Self Employed',from:'2020',to:'2022',desc:'Designed and developed fully responsive websites using HTML, CSS, JavaScript and WordPress. Specialized in small business and e-commerce websites.'}
+  ],
+  edu:[
+    {id:3,deg:'Bachelor of Computer Science',sch:'University of Punjab, Lahore',yr:'2018 – 2022',gr:'3.5 CGPA'},
+    {id:4,deg:'FSc Pre-Engineering',sch:'Punjab College, Lahore',yr:'2016 – 2018',gr:'85%'}
+  ],
+  sk:[
+    {id:5,n:'WordPress / WooCommerce',l:92},
+    {id:6,n:'HTML & CSS',l:88},
+    {id:7,n:'JavaScript',l:75},
+    {id:8,n:'Canva / Figma',l:82},
+    {id:9,n:'PHP / MySQL',l:70}
+  ],
+  lg:[
+    {id:10,n:'Urdu',l:'Native'},
+    {id:11,n:'English',l:'Fluent'},
+    {id:12,n:'Punjabi',l:'Native'}
+  ]
+};
+
+function g(id){return document.getElementById(id)?.value||'';}
+function sp(id,btn){['info','exp','edu','sk','design'].forEach(p=>document.getElementById('p-'+p).classList.toggle('hide',p!==id));document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');}
+function setT(t,el){S.tpl=t;document.querySelectorAll('.tc').forEach(c=>c.classList.remove('on'));el.classList.add('on');render();}
+function setC(c1,c2,el){S.c1=c1;S.c2=c2;document.querySelectorAll('.cp').forEach(c=>c.classList.remove('on'));el.classList.add('on');render();}
+function addE(){S.exp.push({id:Date.now(),title:'',co:'',from:'',to:'',desc:''});rf();}
+function addEd(){S.edu.push({id:Date.now(),deg:'',sch:'',yr:'',gr:''});rf();}
+function addSk(){S.sk.push({id:Date.now(),n:'',l:75});rf();}
+function addLg(){S.lg.push({id:Date.now(),n:'',l:'Fluent'});rf();}
+function del(arr,id){const i=arr.findIndex(x=>x.id===id);if(i>-1)arr.splice(i,1);rf();render();}
+
+function rf(){
+  document.getElementById('exp-c').innerHTML=S.exp.map(e=>`<div class="di"><button class="bdel" onclick="del(S.exp,${e.id})">✕</button>
+    <div class="fg"><label>Job Title</label><input type="text" value="${e.title}" oninput="S.exp.find(x=>x.id==${e.id}).title=this.value;render()"></div>
+    <div class="fg"><label>Company</label><input type="text" value="${e.co}" oninput="S.exp.find(x=>x.id==${e.id}).co=this.value;render()"></div>
+    <div class="frow"><div class="fg"><label>From</label><input type="text" value="${e.from}" oninput="S.exp.find(x=>x.id==${e.id}).from=this.value;render()"></div>
+    <div class="fg"><label>To</label><input type="text" value="${e.to}" oninput="S.exp.find(x=>x.id==${e.id}).to=this.value;render()"></div></div>
+    <div class="fg"><label>Description</label><textarea oninput="S.exp.find(x=>x.id==${e.id}).desc=this.value;render()">${e.desc}</textarea></div></div>`).join('');
+  document.getElementById('edu-c').innerHTML=S.edu.map(e=>`<div class="di"><button class="bdel" onclick="del(S.edu,${e.id})">✕</button>
+    <div class="fg"><label>Degree</label><input type="text" value="${e.deg}" oninput="S.edu.find(x=>x.id==${e.id}).deg=this.value;render()"></div>
+    <div class="fg"><label>Institution</label><input type="text" value="${e.sch}" oninput="S.edu.find(x=>x.id==${e.id}).sch=this.value;render()"></div>
+    <div class="frow"><div class="fg"><label>Year</label><input type="text" value="${e.yr}" oninput="S.edu.find(x=>x.id==${e.id}).yr=this.value;render()"></div>
+    <div class="fg"><label>Grade</label><input type="text" value="${e.gr}" oninput="S.edu.find(x=>x.id==${e.id}).gr=this.value;render()"></div></div></div>`).join('');
+  document.getElementById('sk-c').innerHTML=S.sk.map(s=>`<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:end;margin-bottom:6px">
+    <div><label>Skill</label><input type="text" value="${s.n}" oninput="S.sk.find(x=>x.id==${s.id}).n=this.value;render()"></div>
+    <div><label>${s.l}%</label><input type="range" min="10" max="100" value="${s.l}" style="width:100%" oninput="S.sk.find(x=>x.id==${s.id}).l=parseInt(this.value);rf();render()"></div>
+    <button class="bdel" style="position:static" onclick="del(S.sk,${s.id})">✕</button></div>`).join('');
+  document.getElementById('lg-c').innerHTML=S.lg.map(l=>`<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:end;margin-bottom:6px">
+    <div><label>Language</label><input type="text" value="${l.n}" oninput="S.lg.find(x=>x.id==${l.id}).n=this.value;render()"></div>
+    <div><label>Level</label><select oninput="S.lg.find(x=>x.id==${l.id}).l=this.value;render()">${['Native','Fluent','Advanced','Intermediate','Basic'].map(v=>`<option ${l.l===v?'selected':''}>${v}</option>`).join('')}</select></div>
+    <button class="bdel" style="position:static" onclick="del(S.lg,${l.id})">✕</button></div>`).join('');
+}
+
+function render(){
+  const cv=document.getElementById('cvEl');
+  cv.className=`cv t${S.tpl}`;
+  cv.style.setProperty('--c1',S.c1);
+  cv.style.setProperty('--c2',S.c2);
+  const nm=(g('fn')||'Your Name').toUpperCase();
+  const rl=g('ft')||'Job Title';
+  const sm=g('fs');
+  const ic=g('fic')||'👤';
+  const ph=g('fp2'),em=g('fe'),ct=g('fc'),wb=g('fw');
+
+  if(S.tpl===1){
+    cv.innerHTML=`
+    <div class="col-l">
+      <div class="col-l-head">
+        <div class="l-icon">${ic}</div>
+        <div class="l-name">${nm}</div>
+        <div class="l-role">${rl}</div>
+      </div>
+      <div class="col-l-body">
+        <div class="l-block">
+          <div class="l-sec">Contact</div>
+          ${ph?`<div class="l-contact">📞 ${ph}</div>`:''}
+          ${em?`<div class="l-contact">✉️ ${em}</div>`:''}
+          ${ct?`<div class="l-contact">📍 ${ct}</div>`:''}
+          ${wb?`<div class="l-contact">🌐 ${wb}</div>`:''}
+        </div>
+        <div class="l-block">
+          <div class="l-sec">Skills</div>
+          ${S.sk.map(s=>`<div class="l-sk"><div class="l-sk-name"><span>${s.n}</span><span style="opacity:.65">${s.l}%</span></div><div class="l-sk-bg"><div class="l-sk-fill" style="width:${s.l}%"></div></div></div>`).join('')}
+        </div>
+        ${S.lg.length?`<div class="l-block"><div class="l-sec">Languages</div>${S.lg.map(l=>`<div class="l-lang"><span>${l.n}</span><span>${l.l}</span></div>`).join('')}</div>`:''}
+      </div>
+    </div>
+    <div class="col-r">
+      <div class="col-r-inner">
+        ${sm?`<div><div class="r-sec">About Me</div><div class="r-sum">${sm}</div></div>`:''}
+        <div><div class="r-sec">Work Experience</div>${S.exp.map(e=>`<div class="r-exp"><div class="r-exp-t">${e.title}</div><div class="r-exp-c">${e.co}</div><div class="r-exp-d">${[e.from,e.to].filter(Boolean).join(' – ')}</div>${e.desc?`<div class="r-exp-desc">${e.desc}</div>`:''}</div>`).join('')}</div>
+        <div><div class="r-sec">Education</div>${S.edu.map(e=>`<div class="r-edu"><div class="r-edu-d">${e.deg}</div><div class="r-edu-s">${e.sch}</div><div class="r-edu-y">${[e.yr,e.gr].filter(Boolean).join(' · ')}</div></div>`).join('')}</div>
+      </div>
+    </div>`;
+  } else if(S.tpl===2){
+    cv.innerHTML=`
+    <div class="col-l">
+      <div class="l2-head">
+        <div class="l2-icon">${ic}</div>
+        <div class="l2-name">${nm}</div>
+        <div class="l2-role">${rl}</div>
+      </div>
+      <div class="l2-body">
+        <div class="l2-block"><div class="l2-sec">📞 Contact</div>${ph?`<div class="l2-ci">📞 ${ph}</div>`:''}${em?`<div class="l2-ci">✉️ ${em}</div>`:''}${ct?`<div class="l2-ci">📍 ${ct}</div>`:''}${wb?`<div class="l2-ci">🌐 ${wb}</div>`:''}</div>
+        <div class="l2-block"><div class="l2-sec">⚡ Skills</div>${S.sk.map(s=>`<div class="l2-sk">${s.n}</div>`).join('')}</div>
+        ${S.lg.length?`<div class="l2-block"><div class="l2-sec">🌐 Languages</div>${S.lg.map(l=>`<div class="l2-lang"><span>${l.n}</span><span style="opacity:.65">${l.l}</span></div>`).join('')}</div>`:''}
+      </div>
+    </div>
+    <div class="col-r2">
+      <div class="col-r2-inner">
+        ${sm?`<div><div class="r2-sec">Profile</div><div class="r2-sum">${sm}</div></div>`:''}
+        <div><div class="r2-sec">Work Experience</div>${S.exp.map(e=>`<div class="r2-exp"><div class="r2-exp-t">${e.title}</div><div class="r2-exp-c">${e.co}</div><div class="r2-exp-d">${[e.from,e.to].filter(Boolean).join(' – ')}</div>${e.desc?`<div class="r2-exp-desc">${e.desc}</div>`:''}</div>`).join('')}</div>
+        <div><div class="r2-sec">Education</div>${S.edu.map(e=>`<div class="r2-edu"><div class="r2-edu-d">${e.deg}</div><div class="r2-edu-s">${e.sch}</div><div class="r2-edu-y">${[e.yr,e.gr].filter(Boolean).join(' · ')}</div></div>`).join('')}</div>
+      </div>
+    </div>`;
+  } else if(S.tpl===3){
+    cv.innerHTML=`
+    <div class="col-l">
+      <div class="l3-top"><div class="l3-icon">${ic}</div><div class="l3-name">${nm}</div><div class="l3-role">${rl}</div></div>
+      <div class="l3-body">
+        <div class="l3-block"><div class="l3-sec">Contact</div>${ph?`<div class="l3-ci"><div class="l3-ci-icon">📞</div>${ph}</div>`:''}${em?`<div class="l3-ci"><div class="l3-ci-icon">✉️</div>${em}</div>`:''}${ct?`<div class="l3-ci"><div class="l3-ci-icon">📍</div>${ct}</div>`:''}${wb?`<div class="l3-ci"><div class="l3-ci-icon">🌐</div>${wb}</div>`:''}</div>
+        <div class="l3-block"><div class="l3-sec">Skills</div>${S.sk.map(s=>`<div class="l3-sk"><div class="l3-sk-n"><span>${s.n}</span><span style="opacity:.65">${s.l}%</span></div><div class="l3-sk-bg"><div class="l3-sk-fill" style="width:${s.l}%"></div></div></div>`).join('')}</div>
+        ${S.lg.length?`<div class="l3-block"><div class="l3-sec">Languages</div>${S.lg.map(l=>`<div class="l3-lang">${l.n}<span style="opacity:.65;margin-left:auto">${l.l}</span></div>`).join('')}</div>`:''}
+      </div>
+    </div>
+    <div class="col-r3">
+      <div class="r3-head"><div style="font-family:Montserrat,sans-serif;font-size:22px;font-weight:900;color:#fff;text-transform:uppercase">${nm}</div><div style="font-size:11px;color:rgba(255,255,255,.65);letter-spacing:2px;text-transform:uppercase;margin-top:5px">${rl}</div></div>
+      <div class="r3-body">
+        ${sm?`<div class="r3-block"><div class="r3-sec">Profile</div><div class="r3-sum">${sm}</div></div>`:''}
+        <div class="r3-block"><div class="r3-sec">Work Experience</div>${S.exp.map(e=>`<div class="r3-exp"><div class="r3-exp-t">${e.title}</div><div class="r3-exp-c">${e.co}</div><div class="r3-exp-d">${[e.from,e.to].filter(Boolean).join(' – ')}</div>${e.desc?`<div class="r3-exp-desc">${e.desc}</div>`:''}</div>`).join('')}</div>
+        <div class="r3-block"><div class="r3-sec">Education</div>${S.edu.map(e=>`<div class="r3-edu"><div class="r3-edu-d">${e.deg}</div><div class="r3-edu-s">${e.sch}</div><div class="r3-edu-y">${[e.yr,e.gr].filter(Boolean).join(' · ')}</div></div>`).join('')}</div>
+      </div>
+    </div>`;
+  } else if(S.tpl===4){
+    cv.innerHTML=`
+    <div class="t4-head">
+      <div class="t4-hl"><div style="font-family:Montserrat,sans-serif;font-size:30px;font-weight:900;color:#fff;text-transform:uppercase;line-height:1.1">${nm}</div><div style="font-size:13px;color:rgba(255,255,255,.65);letter-spacing:2px;text-transform:uppercase;margin-top:8px">${rl}</div></div>
+      <div class="t4-icon">${ic}</div>
+    </div>
+    <div class="t4-bar">${ph?`<div class="t4-ci">📞 ${ph}</div>`:''}${em?`<div class="t4-ci">✉️ ${em}</div>`:''}${ct?`<div class="t4-ci">📍 ${ct}</div>`:''}${wb?`<div class="t4-ci">🌐 ${wb}</div>`:''}</div>
+    <div class="t4-body">
+      <div class="t4-bl">
+        ${sm?`<div class="t4-blk"><div class="t4-sec">About Me</div><div class="t4-sum">${sm}</div></div>`:''}
+        <div class="t4-blk"><div class="t4-sec">Work Experience</div>${S.exp.map(e=>`<div class="t4-exp"><div class="t4-exp-t">${e.title}</div><div class="t4-exp-c">${e.co}</div><div class="t4-exp-d">${[e.from,e.to].filter(Boolean).join(' – ')}</div>${e.desc?`<div class="t4-exp-desc">${e.desc}</div>`:''}</div>`).join('')}</div>
+      </div>
+      <div class="t4-br">
+        <div class="t4-blk"><div class="t4-sec">Skills</div>${S.sk.map(s=>`<div class="t4-sk"><div class="t4-sk-n"><span>${s.n}</span><span>${s.l}%</span></div><div class="t4-sk-bg"><div class="t4-sk-fill" style="width:${s.l}%"></div></div></div>`).join('')}</div>
+        <div class="t4-blk"><div class="t4-sec">Education</div>${S.edu.map(e=>`<div class="t4-edu"><div class="t4-edu-d">${e.deg}</div><div class="t4-edu-s">${e.sch}</div><div class="t4-edu-y">${[e.yr,e.gr].filter(Boolean).join(' · ')}</div></div>`).join('')}</div>
+        ${S.lg.length?`<div class="t4-blk"><div class="t4-sec">Languages</div>${S.lg.map(l=>`<div class="t4-lang"><span>${l.n}</span><span>${l.l}</span></div>`).join('')}</div>`:''}
+      </div>
+    </div>`;
+  }
+  scaleCV();
+}
+
+function scaleCV(){
+  const wrap=document.getElementById('cvWrap');
+  const area=document.getElementById('parea');
+  const avail=area.clientWidth-24;
+  if(avail<794){
+    const sc=avail/794;
+    wrap.style.transform=`scale(${sc})`;
+    wrap.style.transformOrigin='top center';
+    wrap.style.marginBottom=`-${1123*(1-sc)}px`;
+  } else {
+    wrap.style.transform='none';
+    wrap.style.marginBottom='0';
+  }
+}
+
+rf();render();
+window.addEventListener('resize',scaleCV);
+</script>
+</body>
+</html>
